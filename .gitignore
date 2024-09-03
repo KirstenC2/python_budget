@@ -5,7 +5,7 @@ __pycache__/
 *.pyd
 
 # CSV files
-July.csv
+.csv
 
 # Virtual environment
 venv/

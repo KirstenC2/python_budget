@@ -1,39 +1,61 @@
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import matplotlib.pyplot as plt
-from module.utils import get_month_now
+import pandas as pd
+import numpy as np
+from module.utils import get_today_month_name
 import os
 
 
 
+
 def generate_bar_chart(data):
+    directory = 'Files/Reports/charts'
+    os.makedirs(directory, exist_ok=True)  # Ensure the directory exists
 
-    month = get_month_now()
-    directory = 'C:/Users/User/Desktop/Python_Budget/Files'
-    file_path = os.path.join(directory, f'{month}_bar.png')
+    # Iterate over the data
+    for month, month_data in data.items():
+        # Convert month_data to a pandas Series if it is a numpy array
+        if isinstance(month_data, np.ndarray):
+            # If month_data is a 2D array, assume the first column is categories and the second is values
+            if month_data.ndim == 2 and month_data.shape[1] == 2:
+                categories = month_data[:, 0]
+                values = month_data[:, 1]
+            else:
+                print(f"Data for {month} is not in the expected format.")
+                continue
+        elif isinstance(month_data, pd.Series):
+            categories = month_data.index
+            values = month_data.values
+        elif isinstance(month_data, dict):
+            categories = list(month_data.keys())
+            values = list(month_data.values())
+        else:
+            print(f"Data for {month} is not in the expected format.")
+            continue
+        
+        file_path = os.path.join(directory, f'{month}_bar.png')
+        
+        # Create the bar chart
+        plt.figure(figsize=(10, 6))
+        plt.bar(categories, values, color='blue')
 
-    # Unpack data into two lists: categories and values
-    categories = list(data.keys())
-    values = list(data.values())
+        # Add titles and labels
+        plt.title(f'{month} Expenses Bar Chart')
+        plt.xlabel('Categories')
+        plt.ylabel('Values')
 
-    # Create the bar chart
-    plt.figure(figsize=(10, 6))
-    plt.bar(categories, values, color='blue')
-
-    # Add titles and labels
-    plt.title('Bar Chart')
-    plt.xlabel('Categories')
-    plt.ylabel('Values')
-
-    # Save the chart as a PNG image
-    plt.savefig(file_path)
-    plt.close()
+        # Save the chart as a PNG image
+        plt.savefig(file_path)
+        plt.close()
+        
+        print(f"Bar chart saved for {month} at {file_path}")
 
 
 def create_summary_pdf(summary_text):
-    month = get_month_now()
+    month = get_today_month_name()
 
-    directory = 'C:/Users/User/Desktop/Python_Budget/Files'
+    directory = 'Files/Reports'
     file_path = os.path.join(directory, f'{month}.pdf')
     chart_path = os.path.join(directory,f'{month}_bar.png')
 

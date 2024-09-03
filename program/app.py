@@ -1,6 +1,8 @@
 import pandas as pd
 from module.file_generation import generate_bar_chart, create_summary_pdf
-from module.utils import get_month_now
+from module.utils import get_today_month_name, count_csv_files
+import os
+
 
 def is_csv_file(file_path):
     # Check if the file path ends with '.csv'
@@ -9,46 +11,70 @@ def is_csv_file(file_path):
     return False
 
 
-def generate_summary(df):
-    #Group the data frame according to the category
-    categorized_transaction = df.groupby('Category')
 
-    #initializing a dictionary to store the summary
-    summary = {}
+def store_csv_to_dataframe(file_name_list, file_directory):
+    print(file_name_list)
+    monthly_data={}
+    #iterate each file in the list
+    for file in file_name_list:
+        
+        file_path = file_directory+'/'+file
+        
+        #clearing file extension for naming generated folders
+        file_name_without_ext = str(file).split('.')[0]
 
-    for category, details in categorized_transaction:
-        #convert the amount data type and sum up for each category
-        summary[category] = details['Amount'].convert_dtypes().sum()
+        #check if it is a csv
+        if is_csv_file(file_path):
+            try:
+                monthly_data[file_name_without_ext] = pd.read_csv(file_path)
+            except ExceptionGroup as error:
+                print("Reading CSV ERROR")
 
-    return summary
+    return monthly_data
+
+def get_expense_summary(data):
+    annual_summary = {}
+    for month in data.keys():
+
+        print("----------------------------------------------")
+        # expenses_df = csv_data[month] #data type : pandas dataframe
+        # print("data type", type(expenses_df))
 
 
+        # category_df = csv_data[month]['Category'] #data type: pandas series
+        # print("data type", type(category_df))
+        
+        #Sum up all expenses based on category
 
+        #data type: pandas series
+        summary_expenses = data[month].groupby('Category')['Amount'].sum()
+        annual_summary[month]=summary_expenses
+
+    return annual_summary
+    
 
 def main():
-    file_path_entered = input("ENTER the full file path of the transaction csv \n")
-    print(file_path_entered)
+    file_directory = 'Files/Transactions'
+    file_count, file_name_list = count_csv_files(file_directory)
 
-    #check if it is a csv
-    if is_csv_file(file_path_entered):
-        try:
-            df = pd.read_csv(file_path_entered)
-        except ExceptionGroup as error:
-            print("Reading CSV ERROR")
+    print("You have ",file_count,'csv files in Transaction folder')
+    print("----------------------------------")
 
-    print("Summary of ", get_month_now())
+    #iterating each csv files in the folder 
+    csv_data = store_csv_to_dataframe(file_name_list,file_directory)
+    monthly_distribution = get_expense_summary(csv_data)
 
+    generate_bar_chart(monthly_distribution) #sending dictionary to generate bar chart
+    
 
+    print("----------------------------------")
+        
 
-    # Separate rows where 'category' is 'income'
-    income_df = df[df['Category'] == 'Income']
+    # #get the summary from dataframe (data in csv dile)
+    # summary = generate_summary(expenses_df)
+    # #then use the summary data ( sum of each category expense) to generate bar chart
+    # 
 
-    # Separate rows where 'category' is not 'income'
-    expenses_df = df[df['Category'] != 'Income']
-
-    summary = generate_summary(expenses_df)
-    generate_bar_chart(summary)
-    print(summary)
-    print(create_summary_pdf(summary))
+    # create_summary_pdf(summary)
 
 main()
