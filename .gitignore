@@ -4,8 +4,9 @@ __pycache__/
 *.pyo
 *.pyd
 
-# CSV files
-*.csv
+# CSV files/reports
+Files/Transactions/
+Files/Reports/
 
 # Virtual environment
 venv/
