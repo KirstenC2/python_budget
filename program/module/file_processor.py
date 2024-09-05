@@ -6,18 +6,13 @@ import numpy as np
 from module.utils import get_today_month_name
 import os
 
-
-
-
 def generate_bar_chart(data):
-    directory = 'Files/Reports/charts'
+    directory = 'Files/Reports/Charts'
     os.makedirs(directory, exist_ok=True)  # Ensure the directory exists
 
     # Iterate over the data
     for month, month_data in data.items():
-        # Convert month_data to a pandas Series if it is a numpy array
         if isinstance(month_data, np.ndarray):
-            # If month_data is a 2D array, assume the first column is categories and the second is values
             if month_data.ndim == 2 and month_data.shape[1] == 2:
                 categories = month_data[:, 0]
                 values = month_data[:, 1]
@@ -36,21 +31,27 @@ def generate_bar_chart(data):
         
         file_path = os.path.join(directory, f'{month}_bar.png')
         
-        # Create the bar chart
-        plt.figure(figsize=(10, 6))
-        plt.bar(categories, values, color='blue')
-
-        # Add titles and labels
-        plt.title(f'{month} Expenses Bar Chart')
-        plt.xlabel('Categories')
-        plt.ylabel('Values')
-
+        # Create a figure and axis
+        fig, ax = plt.subplots(figsize=(8, 10))
+        
+        # Plot the bar chart
+        ax.bar(categories, values, color='blue')
+        ax.set_title(f'{month} Expenses Bar Chart')
+        ax.set_xlabel('Categories')
+        ax.set_ylabel('Values')
+        
         # Save the chart as a PNG image
         plt.savefig(file_path)
         plt.close()
         
-        print(f"Bar chart saved for {month} at {file_path}")
+        print(f"Bar chart with table saved for {month} at {file_path}")
 
+        
+def is_csv_file(file_path):
+    # Check if the file path ends with '.csv'
+    if file_path.lower().endswith('.csv'):
+        return True
+    return False
 
 def create_summary_pdf(summary_text):
     month = get_today_month_name()
