@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 from module.utils import get_today_month_name
 import os
+from datetime import datetime
 
 def generate_bar_chart(data):
     directory = 'Files/Reports/Charts'
@@ -96,3 +97,21 @@ def create_summary_pdf(summary_text):
     # Save the PDF
     c.save()
     print(f"PDF created at {file_path}")
+
+
+def save_summary_to_csv(monthly_summary_value):
+    """
+    args: 
+    monthly_summary_value(dict type)
+
+    return: 
+    boolean
+    """
+    try:
+        annual_summary_df = pd.DataFrame(monthly_summary_value)
+        current_year = str(datetime.now().year)
+        annual_summary_df.to_csv('Files/Reports/Summary/'+ current_year + ".csv")
+        return True
+    except ExceptionGroup as error:
+        print(error)
+        return False

@@ -1,11 +1,16 @@
 import pandas as pd
-from module.file_processor import generate_bar_chart, is_csv_file
+from module.file_processor import *
 from module.utils import get_today_month_name, count_csv_files
 import os
 from datetime import datetime
 
+
 def raw_data_process(file_name_list, file_directory):
     """
+    - checking is it csv files
+    - reading csv to dataframe
+    - splitting off income and expenses
+
     args:
     file_name_list
     file_directory(string) : 
@@ -57,12 +62,18 @@ def raw_data_process(file_name_list, file_directory):
 
     return monthly_data
 
-def get_expense_summary(data):
+def get_total_of_each_group(data):
     """
+    category here
+    = F&B, Mobile, Entertainment, ....
+
     args:
     data(dataframe)
     - data(month) each months contains two series: income and expenses
 
+    return:
+    ttl (dict type)
+    - total of each category such as F&B, Entertainment, mobile, ....
     """
     ttl = {}
     for month in data.keys():
@@ -108,30 +119,26 @@ def main():
     file_count, file_name_list = count_csv_files(file_directory)
     print("You have ",file_count,'csv files in Transaction folder')
 
-    #iterating each csv files in the folder 
+    #Data Processing (Monthly Transactions from different csv files)
     data = raw_data_process(file_name_list,file_directory)
-    
-    monthly_distribution_in_dict = get_expense_summary(data) #returned dictionary
-    
+    monthly_distribution_in_dict = get_total_of_each_group(data) #returned dictionary
+
+    #Calculation of Monthly total income expenses
     annual_summary = {}
     for month in monthly_distribution_in_dict.keys():
         ExpenseIncomeMonthlySeries = pd.Series(calculate_monthly_total(monthly_distribution_in_dict[month]))
         annual_summary[month] = ExpenseIncomeMonthlySeries
     
-    #convert dict to dataframe
-    annual_summary_df = pd.DataFrame(annual_summary)
+
+    # Summary file generating process
+    saving_status = save_summary_to_csv(annual_summary)
+    if(saving_status == True):
+        print("Saved Successfully")
+    else:
+        print("Failed in saving file")
     
-    current_year = str(datetime.now().year)
-  
-    annual_summary_df.to_csv('Files/Reports/Summary/'+ current_year + ".csv")
-    # # monthly_distribution #-- this is series
-    
-    # print("calculating monthly total expenses")
-    # 
-    #generate_bar_chart(monthly_distribution) #sending dictionary to generate bar chart
 
 
 
-    # create_summary_pdf(summary)
 
 main()
