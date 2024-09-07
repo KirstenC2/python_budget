@@ -2,6 +2,7 @@ import pandas as pd
 from module.file_processor import generate_bar_chart, is_csv_file
 from module.utils import get_today_month_name, count_csv_files
 import os
+from datetime import datetime
 
 def raw_data_process(file_name_list, file_directory):
     """
@@ -102,7 +103,7 @@ def calculate_monthly_total(monthly_data):
 
 def main():
 
-
+    # folder_path = input('Enter the folder path where contains all the csv files: \n \n > ')
     file_directory = 'Files/Transactions'
     file_count, file_name_list = count_csv_files(file_directory)
     print("You have ",file_count,'csv files in Transaction folder')
@@ -110,12 +111,19 @@ def main():
     #iterating each csv files in the folder 
     data = raw_data_process(file_name_list,file_directory)
     
-
-    monthly_distribution = get_expense_summary(data)
-
-    for month in monthly_distribution.keys():
-        print("Summary of ",month)
-        print(calculate_monthly_total(monthly_distribution[month]))
+    monthly_distribution_in_dict = get_expense_summary(data) #returned dictionary
+    
+    annual_summary = {}
+    for month in monthly_distribution_in_dict.keys():
+        ExpenseIncomeMonthlySeries = pd.Series(calculate_monthly_total(monthly_distribution_in_dict[month]))
+        annual_summary[month] = ExpenseIncomeMonthlySeries
+    
+    #convert dict to dataframe
+    annual_summary_df = pd.DataFrame(annual_summary)
+    
+    current_year = str(datetime.now().year)
+  
+    annual_summary_df.to_csv('Files/Reports/Summary/'+ current_year + ".csv")
     # # monthly_distribution #-- this is series
     
     # print("calculating monthly total expenses")
