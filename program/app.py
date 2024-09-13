@@ -122,20 +122,23 @@ def main():
     #Data Processing (Monthly Transactions from different csv files)
     data = raw_data_process(file_name_list,file_directory)
     monthly_distribution_in_dict = get_total_of_each_group(data) #returned dictionary
-
+    print("This is the monthly budget and finance details")
+    print(monthly_distribution_in_dict)
+    print("----------------------------------------------")
     #Calculation of Monthly total income expenses
     annual_summary = {}
     for month in monthly_distribution_in_dict.keys():
         ExpenseIncomeMonthlySeries = pd.Series(calculate_monthly_total(monthly_distribution_in_dict[month]))
         annual_summary[month] = ExpenseIncomeMonthlySeries
-    
+    print("Monthly expenses and incomes summary")
+    print(annual_summary)
 
     # Summary file generating process
-    saving_status = save_summary_to_csv(annual_summary)
-    if(saving_status == True):
-        print("Saved Successfully")
-    else:
-        print("Failed in saving file")
+    # saving_status = save_summary_to_csv(annual_summary)
+    # if(saving_status == True):
+    #     print("Saved Successfully")
+    # else:
+    #     print("Failed in saving file")
     
 
 

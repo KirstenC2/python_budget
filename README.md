@@ -1,15 +1,4 @@
-This is a python program to read in csv file and generate analysis
+This is a python program to read in csv file and generate analysis for monthly financial report
 
-# Python Program Note
-
-## Pandas
-### Pandas: Series
-- == Columns of table
-- 1-D array that hold any type of data
-
-### Grouping and aggregation
-
-## Numpy
-
-
-
+## How it works?
+This program will based on the csv files provided by user, process on the files, then generate the summary of expenses and income for each months.
